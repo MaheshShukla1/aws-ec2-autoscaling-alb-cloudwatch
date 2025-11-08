@@ -31,3 +31,26 @@ All steps captured in `/screenshots` directory with filenames.
 
 ## 👨‍💻 Author
 Mahesh — DevOps | Cloud Enthusiast
+
+
+```yaml
+aws-ec2-autoscaling-monitoring-project/
+│
+├── README.md                 # Full documentation (we’ll fill this)
+├── screenshots/              # All proof images here
+│   ├── 01-ec2-launch.png
+│   ├── 02-webserver-running.png
+│   ├── 03-ebs-attached.png
+│   ├── 04-ebs-persistent.png
+│   ├── 05-custom-ami.png
+│   ├── 06-launch-template.png
+│   ├── 07-alb-targetgroup.png
+│   ├── 08-asg-created.png
+│   ├── 09-cloudwatch-alarm.png
+│   ├── 10-asg-scaleout.png
+│   ├── 11-sns-alert.png
+│   ├── 12-cloudwatch-agent.png
+│
+├── architecture-diagram.png  # Final AWS setup diagram (draw.io / Lucidchart)
+└── notes.md                  # Personal commands & troubleshooting
+```
