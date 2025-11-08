@@ -1,153 +1,194 @@
 # 🚀 AWS EC2 Auto Scaling, ALB & CloudWatch Monitoring Project
 
+![AWS Badge](https://img.shields.io/badge/AWS-Cloud-orange?logo=amazonaws)
+![Linux Badge](https://img.shields.io/badge/Linux-Server-blue?logo=linux)
+![Bash Badge](https://img.shields.io/badge/Shell-Bash-blue?logo=gnu-bash)
+![DevSecOps Badge](https://img.shields.io/badge/DevSecOps-Automation-green?logo=githubactions)
+![Status Badge](https://img.shields.io/badge/Status-Completed-success?style=flat-square)
 
-**Author:** Mahesh Shukla  
-**Goal:** Build a highly available, scalable, and monitored web infrastructure using **AWS EC2**, **EBS**, **AMI**, **Launch Template**, **Auto Scaling Group (ASG)**, **Application Load Balancer (ALB)**, and **CloudWatch**.  
-**Duration:** Day 3 of my AWS DevSecOps Journey  
-**Focus:** Automation + High Availability + Monitoring  
+---
+
+**👤 Author:** [Mahesh Shukla](http://linkedin.com/in/maheshsh)  
+**🎯 Goal:** Design a **highly available, scalable, and monitored web infrastructure** using **AWS EC2**, **EBS**, **AMI**, **Launch Templates**, **Auto Scaling Groups (ASG)**, **Application Load Balancer (ALB)**, and **CloudWatch**.  
+**🕒 Duration:** Day 3 of AWS DevSecOps Journey  
+**⚙️ Focus:** *Automation · High Availability · Monitoring*
+
+---
+
+## 📚 Table of Contents
+
+1. [Project Overview](#-project-overview)
+2. [Architecture Overview](#-architecture-overview)
+3. [Pre-requisites](#-pre-requisites)
+4. [Step-by-Step Implementation](#️-step-by-step-implementation)
+5. [Verification Checklist](#-verification-checklist)
+6. [Key Learnings](#-key-learnings)
+7. [Troubleshooting](#-troubleshooting)
+8. [Cost Awareness](#-cost-awareness)
+9. [Future Enhancements](#-future-enhancements)
+10. [Tech Stack](#-tech-stack)
+11. [Author](#-author)
 
 ---
 
 ## 🧭 Project Overview
 
-This hands-on project demonstrates how to:
+This project showcases a **scalable and monitored web application deployment** using core AWS services. It demonstrates automation, elasticity, fault tolerance, and observability — the building blocks of cloud-native architecture.
 
-1. Launch and configure an EC2 instance.
-2. Attach and persist an EBS volume.
-3. Create a custom AMI for reuse.
-4. Deploy an Auto Scaling Group (ASG) using a Launch Template.
-5. Integrate with an Application Load Balancer (ALB).
-6. Configure CloudWatch alarms to monitor instance health and CPU utilization.
-7. Test scaling behavior by simulating load.
+### 🎯 Key Objectives
+- Configure persistent storage with **EBS**  
+- Automate deployments via **Launch Templates** and **User Data**  
+- Achieve horizontal scalability using **Auto Scaling Groups (ASG)**  
+- Load balance traffic via **Application Load Balancer (ALB)**  
+- Implement proactive monitoring with **CloudWatch Alarms**
 
 ---
 
 ## 🧱 Architecture Overview
 
-**Architecture Components:**
+### 🏗️ Components
 
-- **EC2 Instance** (Web Server)
-- **EBS Volume** (Persistent Storage)
-- **AMI** (Golden Image)
-- **Launch Template**
-- **Auto Scaling Group**
-- **Application Load Balancer**
-- **CloudWatch Alarms + Metrics**
+| Component | Description |
+|------------|-------------|
+| **EC2 Instance** | Hosts the Apache web server |
+| **EBS Volume** | Provides persistent block-level storage |
+| **AMI** | Golden image for instance replication |
+| **Launch Template** | Defines configuration for ASG |
+| **Auto Scaling Group** | Maintains capacity and scales automatically |
+| **Application Load Balancer (ALB)** | Distributes incoming HTTP traffic |
+| **CloudWatch** | Monitors performance metrics and triggers alarms |
 
-![AWS Architecture](screenshots/aws-architecture.png)
+📘 **Reference:** [AWS Architecture Center](https://aws.amazon.com/architecture/)
 
 ---
 
-## ⚙️ Step 1: Launch EC2 Instance
+### 🧩 Architecture Diagram (Mermaid)
 
-### 🧩 Configuration
-- **AMI:** Amazon Linux 2
-- **Instance Type:** t2.micro
-- **Security Group:** Allow HTTP (80) + SSH (22)
-- **Key Pair:** `aws-day3-key`
+```mermaid
+%% AWS Architecture - Colorful Scalable Web Infrastructure
 
-### 🧰 Commands Used
+flowchart TD
+    %% Users
+    User["🌐 User / Browser"] -->|HTTP Requests| ALB["⚡ Application Load Balancer (HTTP)"]
 
-```bash
-# Connect to instance
-ssh -i aws-day3-key.pem ec2-user@<EC2-Public-IP>
+    %% EC2 Instances under ASG
+    subgraph ASG["🖥️ Auto Scaling Group"]
+        direction TB
+        EC21["EC2 Instance 1\nWeb Server (Apache)\nUser Data Script"]
+        EC22["EC2 Instance 2\nWeb Server (Apache)\nUser Data Script"]
+    end
 
-# Update system
-sudo yum update -y
+    %% Load Balancer to EC2
+    ALB --> EC21
+    ALB --> EC22
 
-# Install Apache Web Server
-sudo yum install httpd -y
+    %% EBS Volumes
+    EC21 --> EBS1["💾 EBS Volume (Persistent)"]
+    EC22 --> EBS2["💾 EBS Volume (Persistent)"]
 
-# Start and enable service
-sudo systemctl start httpd
-sudo systemctl enable httpd
+    %% CloudWatch Monitoring
+    EC21 --> CW["📊 CloudWatch\nCPU, Health Checks, Alarms"]
+    EC22 --> CW
 
-# Create a test webpage
-echo "<h1>Hello from Mahesh Ec2 Webserver</h1>" | sudo tee /var/www/html/index.html
+    %% Launch Template wraps ASG
+    subgraph LT["📝 Launch Template"]
+        ASG
+    end
+
+    %% AMI wraps Launch Template
+    subgraph AMI["🛠️ Custom AMI"]
+        LT
+    end
+
+    %% Color styling with black text
+    classDef userNode fill:#FFD700,stroke:#333,stroke-width:1px,rx:5,ry:5,color:#000000;      %% Gold
+    classDef albNode fill:#FF8C00,stroke:#333,stroke-width:1px,rx:5,ry:5,color:#000000;       %% Dark Orange
+    classDef ec2Node fill:#1E90FF,stroke:#333,stroke-width:1px,rx:5,ry:5,color:#000000;       %% Dodger Blue
+    classDef ebsNode fill:#32CD32,stroke:#333,stroke-width:1px,rx:5,ry:5,color:#000000;       %% Lime Green
+    classDef cwNode fill:#8A2BE2,stroke:#333,stroke-width:1px,rx:5,ry:5,color:#000000;        %% Blue Violet
+    classDef asgNode fill:#00CED1,stroke:#333,stroke-width:1px,rx:5,ry:5,color:#000000;       %% Dark Turquoise
+    classDef ltNode fill:#FF69B4,stroke:#333,stroke-width:1px,rx:5,ry:5,color:#000000;        %% Hot Pink
+    classDef amiNode fill:#FF4500,stroke:#333,stroke-width:1px,rx:5,ry:5,color:#000000;       %% Orange Red
+
+    %% Apply classes
+    class User userNode;
+    class ALB albNode;
+    class EC21,EC22 ec2Node;
+    class EBS1,EBS2 ebsNode;
+    class CW cwNode;
+    class ASG asgNode;
+    class LT ltNode;
+    class AMI amiNode;
 ```
 
 📸 **Screenshot:**  
+![AWS Architecture](screenshots/aws-architecture.png)  
+*Figure: Logical flow of traffic and scaling events within AWS architecture.*
+
+---
+
+## 🧰 Pre-requisites
+
+Before starting, ensure the following:
+
+- ✅ AWS Account (Free Tier eligible)  
+- ✅ IAM User with `EC2`, `ALB`, and `CloudWatch` permissions  
+- ✅ SSH Key Pair for EC2 access  
+- ✅ Installed: [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)  
+- ✅ Basic knowledge of Linux commands and AWS Console  
+
+---
+
+## 🏗️ Step-by-Step Implementation
+
+### ⚙️ Step 1: Launch EC2 Instance
+
+```bash
+ssh -i aws-day3-key.pem ec2-user@<EC2-Public-IP>
+sudo yum update -y
+sudo yum install httpd -y
+sudo systemctl start httpd
+sudo systemctl enable httpd
+echo "<h1>Hello from Mahesh EC2 Webserver</h1>" | sudo tee /var/www/html/index.html
+```
+
+📸 **Screenshots:**  
 ![EC2 Launch](screenshots/01-ec2-launch.png)  
 ![Web Server Running](screenshots/02-webserver-running.png)
 
-✅ **Expected Output:**  
-Access the public IP in a browser →  
-`http://<EC2-Public-IP>` → Page displays your custom message.
-
 ---
 
-## 💾 Step 2: Attach and Mount EBS Volume
-
-### 🧩 Configuration
-- Create an **EBS Volume** (8 GB, same Availability Zone)
-- Attach to your instance
-
-### 🧰 Commands Used
+### 💾 Step 2: Attach and Mount EBS Volume
 
 ```bash
-# List available disks
 lsblk
-
-# Create partition and format
 sudo mkfs -t xfs /dev/xvdf
-
-# Create mount point
 sudo mkdir /data
-
-# Mount the volume
 sudo mount /dev/xvdf /data
-
-# Verify mount
 df -h
-```
-
-📸 **Screenshot:**  
-![EBS Attached](screenshots/03-ebs-attached.png)
-
-### 🧪 Test Persistence Across Reboot
-
-```bash
-# Add entry to fstab
 echo "/dev/xvdf /data xfs defaults,nofail 0 2" | sudo tee -a /etc/fstab
-
-# Reboot instance
 sudo reboot
-
-# Verify after reboot
 df -h
 ```
 
-📸 **Screenshot:**  
+📸 **Screenshots:**  
+![EBS Attached](screenshots/03-ebs-attached.png)  
 ![EBS Persistent](screenshots/04-ebs-persistent.png)
 
-✅ **Expected Output:**  
-Volume should auto-mount at `/data` after reboot.
-
 ---
 
-## 🧬 Step 3: Create a Custom AMI
+### 🧬 Step 3: Create a Custom AMI
 
 ```bash
-# Create AMI from EC2 (via AWS Console or CLI)
 aws ec2 create-image --instance-id <instance-id> --name "webserver-ami-day3" --no-reboot
 ```
 
 📸 **Screenshot:**  
 ![Custom AMI](screenshots/05-custom-ami.png)
 
-✅ **Result:**  
-Reusable AMI with web server and EBS config baked in.
-
 ---
 
-## 📦 Step 4: Create a Launch Template
-
-### 🧩 Configuration
-- Use the **Custom AMI**
-- Instance Type: `t2.micro`
-- User Data Script: (automates web server setup)
-
-### 🧰 User Data Script
+### 📝 Step 4: Create a Launch Template
 
 ```bash
 #!/bin/bash
@@ -161,127 +202,112 @@ echo "<h1>Auto Scaling Instance - $(hostname)</h1>" > /var/www/html/index.html
 📸 **Screenshot:**  
 ![Launch Template](screenshots/06-launch-template.png)
 
-✅ **Expected Output:**  
-Every new instance automatically runs a web server on boot.
-
 ---
 
-## 🧩 Step 5: Configure Load Balancer (ALB)
+### ⚖️ Step 5: Configure Application Load Balancer (ALB)
 
-### 🧩 Steps
-1. Create a **Target Group** for HTTP (port 80)
-2. Register no instances yet (ASG will attach automatically)
-3. Create an **Application Load Balancer**
-4. Add the target group as listener target
+1. Create a **Target Group** (HTTP on port 80).  
+2. Create an **Application Load Balancer** and attach it to the Target Group.  
+3. Enable health checks to ensure instance availability.
 
 📸 **Screenshot:**  
 ![Target Group](screenshots/07-alb-targetgroup.png)
 
-✅ **Result:**  
-ALB DNS name will serve traffic across instances.
-
 ---
 
-## 🔁 Step 6: Create Auto Scaling Group (ASG)
+### 🔁 Step 6: Configure Auto Scaling Group (ASG)
 
-### 🧩 Configuration
-- Use the Launch Template
-- Target Group: connect ALB target group
-- Desired Capacity: 2  
-- Min: 1  
-- Max: 3  
-- Health Check: ELB + EC2
+| Setting | Value |
+|----------|--------|
+| Desired Capacity | 2 |
+| Minimum Instances | 1 |
+| Maximum Instances | 3 |
+| Health Check Type | ELB + EC2 |
 
 📸 **Screenshot:**  
 ![ASG Created](screenshots/08-asg-created.png)
 
-✅ **Expected Output:**  
-Two instances automatically launched and registered in the ALB target group.
-
 ---
 
-## 📊 Step 7: Set Up CloudWatch Monitoring
+### 📊 Step 7: CloudWatch Monitoring & Alarms
 
-### 🧩 Configuration
-- Metric: **CPUUtilization**
-- Threshold: **>= 70%**
-- Action: Scale out (+1 instance)
-- Notification: SNS topic (optional)
+Use `stress` to simulate CPU load and trigger scaling actions.
+
+```bash
+sudo yum install stress -y
+stress --cpu 2 --timeout 300
+```
 
 📸 **Screenshot:**  
 ![CloudWatch Alarm](screenshots/09-cloudwatch-alarm.png)
 
-### 🧰 Commands Used
-
-```bash
-# Install stress tool if not already
-sudo yum install stress -y
-
-# Generate CPU load
-stress --cpu 2 --timeout 300
-```
-
-✅ **Expected Output:**  
-- CPU utilization spikes in CloudWatch.
-- ASG scales out automatically to add a new instance.
-
 ---
 
-## 🌐 Step 8: Verify Load Balancer Access
+### 🌐 Step 8: Test Load Balancer
 
-Visit the ALB DNS name in your browser:  
-`http://<ALB-DNS-Name>`  
+Access your application via ALB DNS:
+
+```bash
+http://<ALB-DNS-Name>
+```
 
 📸 **Screenshot:**  
 ![ALB Working](screenshots/10-alb-working.png)
 
-✅ **Expected Output:**  
-Requests should round-robin between multiple instances (hostname changes).
-
 ---
 
-## 🧾 Verification Checklist
+## ✅ Verification Checklist
 
-| Step | Description | Status | Screenshot |
-|------|--------------|--------|-------------|
-| 1 | EC2 Instance launched and web server configured | ✅ | 01, 02 |
-| 2 | EBS volume attached and persistent | ✅ | 03, 04 |
-| 3 | Custom AMI created | ✅ | 05 |
-| 4 | Launch Template created with User Data | ✅ | 06 |
-| 5 | ALB + Target Group configured | ✅ | 07 |
-| 6 | Auto Scaling Group created | ✅ | 08 |
-| 7 | CloudWatch alarm configured | ✅ | 09 |
-| 8 | ALB tested and working | ✅ | 10 |
+| Step | Description | Status |
+|------|--------------|--------|
+| 1 | EC2 + Web Server | ✅ |
+| 2 | EBS Attached | ✅ |
+| 3 | Custom AMI | ✅ |
+| 4 | Launch Template | ✅ |
+| 5 | ALB Configured | ✅ |
+| 6 | ASG Active | ✅ |
+| 7 | CloudWatch Alarm | ✅ |
+| 8 | ALB Tested | ✅ |
 
 ---
 
 ## 💡 Key Learnings
 
-- Understood EC2 lifecycle and persistent storage configuration.
-- Learned to automate setup using User Data scripts.
-- Built reusable AMIs for fast deployment.
-- Configured scalable infrastructure with ASG and ALB.
-- Monitored infrastructure health with CloudWatch metrics and alarms.
-- Tested scaling events in real time using load simulation.
+- Persistent storage via **EBS volumes**  
+- Infrastructure automation using **Launch Templates**  
+- Dynamic scalability with **Auto Scaling Groups**  
+- Fault-tolerant traffic management via **ALB**  
+- Monitoring and alerting using **CloudWatch Metrics & Alarms**
+
+---
+
+## 🧩 Troubleshooting
+
+| Issue | Cause | Solution |
+|-------|--------|-----------|
+| Web page not loading | Security Group missing HTTP rule | Add inbound port 80 rule |
+| Volume not persistent | Missing `/etc/fstab` entry | Re-add mount entry and reboot |
+| ALB health check failing | Apache service stopped | Restart `httpd` and verify health check URL |
+
+---
+
+## 💰 Cost Awareness
+
+- 🧹 Terminate unused instances to avoid charges  
+- 💡 Use Free Tier instances like `t2.micro` or `t3.micro`  
+- 📊 Monitor spending via [AWS Cost Explorer](https://aws.amazon.com/aws-cost-management/)  
+
+> ⚠️ **Tip:** Always delete ALB and ASG resources after testing — they continue billing even if EC2 instances are terminated.
 
 ---
 
 ## 🔮 Future Enhancements
 
-- [ ] Add HTTPS support using AWS ACM + ALB  
-- [ ] Integrate CloudWatch Logs and Dashboard visualizations  
-- [ ] Use Terraform to automate the entire setup  
-- [ ] Add SNS notification for scaling events  
-- [ ] Implement CI/CD pipeline for web app updates  
-
----
-
-## 🧰 Tech Stack
-
-- **AWS EC2**, **EBS**, **AMI**
-- **Launch Template**, **ASG**, **ALB**
-- **CloudWatch**, **SNS**
-- **Amazon Linux 2**, **Apache HTTPD**
+- [ ] Enable HTTPS via **AWS Certificate Manager (ACM)**  
+- [ ] Add **CloudWatch Dashboards** for visual metrics  
+- [ ] Automate infrastructure using **Terraform**  
+- [ ] Implement **CI/CD pipeline** (CodePipeline + CodeDeploy)  
+- [ ] Add **SNS Notifications** for scaling events  
 
 ---
 
@@ -290,8 +316,24 @@ Requests should round-robin between multiple instances (hostname changes).
 **Mahesh Shukla**  
 _Aspiring AWS DevSecOps Engineer_  
 📍 Mumbai, India  
-🔗 [LinkedIn](http://linkedin.com/in/maheshsh)  
+🔗 [LinkedIn](http://linkedin.com/in/maheshsh)
+
+> _“Scaling is not a feature — it’s a mindset.  
+> Monitor everything. Automate everything.”_
 
 ---
 
-> _“Scaling is not a feature, it’s a mindset. Monitor everything, automate everything.”_
+## 🧰 Tech Stack
+
+| Category | Technologies |
+|-----------|---------------|
+| **Cloud Provider** | AWS (EC2, EBS, ALB, ASG, CloudWatch) |
+| **Operating System** | Amazon Linux 2 |
+| **Automation** | AWS CLI, Bash Scripts |
+| **Monitoring** | AWS CloudWatch |
+| **Security** | IAM, Security Groups |
+| **DevOps Tools** | GitHub, DevSecOps Principles |
+
+---
+
+📄 *This README is optimized for GitHub presentation — with badges, tables, and diagrams for portfolio visibility.*
